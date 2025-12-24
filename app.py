@@ -61,7 +61,7 @@
 
 import os
 import shutil
-from fastapi import FastAPI, File, UploadFile, Request
+from fastapi import FastAPI, File, UploadFile, Request ,Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from dotenv import load_dotenv
@@ -91,15 +91,41 @@ def home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+# @app.post("/transcribe")
+# async def transcribe_audio(file: UploadFile = File(...)):
+#     file_path = f"{UPLOAD_DIR}/{file.filename}"
+
+#     with open(file_path, "wb") as buffer:
+#         shutil.copyfileobj(file.file, buffer)
+
+#     result = asr(file_path)
+
+#     return {
+#         "transcription": result["text"]
+#     }
+
+
 @app.post("/transcribe")
-async def transcribe_audio(file: UploadFile = File(...)):
-    file_path = f"{UPLOAD_DIR}/{file.filename}"
+async def transcribe_audio(
+    file: UploadFile = File(...),
+    language: str = Form("auto")
+):
+    file_path = f"uploads/{file.filename}"
 
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    result = asr(file_path)
+    generate_kwargs = {}
+
+    if language != "auto":
+        generate_kwargs["language"] = language
+
+    result = asr(
+        file_path,
+        generate_kwargs=generate_kwargs
+    )
 
     return {
+        "language": language,
         "transcription": result["text"]
     }

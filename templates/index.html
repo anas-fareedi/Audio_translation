@@ -84,12 +84,26 @@
 
 <input type="file" id="audioFile" accept="audio/*">
 <br><br>
+<!-- 2️⃣ Language dropdown (ADD THIS HERE) -->
+<label for="language"><b>Select Language:</b></label>
+<select id="language">
+    <option value="auto">Auto Detect</option>
+    <option value="en">English</option>
+    <option value="hi">Hindi</option>
+    <option value="fr">French</option>
+    <option value="es">Spanish</option>
+    <option value="de">German</option>
+    <option value="ja">Japanese</option>
+    <option value="zh">Chinese</option>
+</select>
+
+<br><br>
 <button onclick="uploadAudio()">Upload & Transcribe</button>
 
 <h3>Result:</h3>
 <pre id="result"></pre>
 
-<script>
+<!-- <script>
 async function uploadAudio() {
     const fileInput = document.getElementById("audioFile");
     if (!fileInput.files.length) {
@@ -99,6 +113,29 @@ async function uploadAudio() {
 
     const formData = new FormData();
     formData.append("file", fileInput.files[0]);
+
+    const response = await fetch("/transcribe", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+    document.getElementById("result").textContent = data.transcription;
+}
+</script> -->
+<script>
+async function uploadAudio() {
+    const fileInput = document.getElementById("audioFile");
+    const language = document.getElementById("language").value;
+
+    if (!fileInput.files.length) {
+        alert("Please select an audio file");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+    formData.append("language", language);
 
     const response = await fetch("/transcribe", {
         method: "POST",
